@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sofia Perez-Vigo · Meteorological Station · Est. 2026</title>
+<style>
+:root{
+  --cream:#EDE4CF; --brass:#B08D3C; --hi:#D9BC6A; --sh:#6E5620;
+  --ink:#23312F; --red:#A33B2B; --sea:#6F8F8C; --wood:#3B2A20; --violet:#5B4391;
+  --e:cubic-bezier(.22,.9,.24,1); --spring:cubic-bezier(.3,1.5,.5,1);
+  --serif:Georgia,"Times New Roman",Times,serif;
+  --hand:"Apple Chancery","Lucida Calligraphy","Z003","URW Chancery L","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:auto;background:var(--ink);-webkit-text-size-adjust:100%;scrollbar-gutter:stable}
+body{margin:0;font-family:var(--serif);color:var(--ink);background:var(--ink);overflow-x:hidden}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--hi);outline-offset:3px;border-radius:3px}
+::selection{background:var(--brass);color:#1b110b}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+
+/* ── board ── */
+.board{position:relative;--dim:0;--rain:0;--cl:0;--night:0;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0 330px,rgba(0,0,0,.30) 330px 332px,rgba(255,220,170,.045) 332px 333px),
+    linear-gradient(172deg,#553828 0%,#3B2A20 38%,#2d1f18 100%);
+  padding:clamp(14px,2vw,26px) clamp(12px,2.4vw,36px) 0;
+  box-shadow:inset 0 0 0 1px rgba(217,188,106,.14),inset 0 0 140px rgba(0,0,0,.55)}
+.grain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.6}
+.in{max-width:1290px;margin:0 auto;position:relative}
+.head{display:grid;grid-template-columns:128px minmax(0,1fr) 128px;align-items:center;gap:clamp(10px,2vw,28px);margin-bottom:clamp(12px,1.6vw,22px)}
+.plaque{justify-self:center;position:relative;text-align:center;max-width:960px;width:100%;
+  padding:clamp(12px,1.5vw,20px) clamp(26px,4vw,56px) clamp(10px,1.3vw,16px);
+  background:linear-gradient(176deg,#e6cd86 0%,#D9BC6A 14%,#B08D3C 52%,#ad8c3e 80%,#B08D3C 100%);
+  border:1px solid #6E5620;border-radius:4px;
+  box-shadow:inset 0 1px 0 rgba(255,246,208,.75),inset 0 -2px 3px rgba(60,44,10,.45),0 6px 14px rgba(0,0,0,.55)}
+.plaque::before{content:"";position:absolute;inset:5px;border:1px solid rgba(78,58,16,.55);border-radius:2px;
+  box-shadow:0 1px 0 rgba(255,240,190,.4);pointer-events:none}
+.plaque i{position:absolute;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f0dc9a,#8a6c26 70%);
+  box-shadow:inset 0 0 0 1px #6E5620,0 1px 1px rgba(0,0,0,.4)}
+.plaque i::after{content:"";position:absolute;left:1px;right:1px;top:4px;height:1px;background:#4c3b14;transform:rotate(var(--r,30deg))}
+.plaque i:nth-of-type(1){left:10px;top:10px}.plaque i:nth-of-type(2){right:10px;top:10px;--r:-50deg}
+.plaque i:nth-of-type(3){left:10px;bottom:10px;--r:80deg}.plaque i:nth-of-type(4){right:10px;bottom:10px;--r:10px}
+h1{margin:0;font-weight:400;font-size:clamp(14px,1.5vw,22px);letter-spacing:.2em;text-transform:uppercase;color:#2b2009;
+  text-shadow:0 1px 0 rgba(255,241,196,.6),0 -1px 0 rgba(60,44,10,.25);line-height:1.25}
+h1 .d{color:#6E5620;padding:0 .35em}
+.plaque p{margin:6px 0 0;font-size:clamp(9px,.82vw,11px);letter-spacing:.28em;text-transform:uppercase;color:#2a2009;text-shadow:0 1px 0 rgba(255,241,196,.45)}
+
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(12px,1.5vw,22px);
+  grid-template-areas:"anemo baro baro rose" "therm baro baro rain" "graph graph sun trio";padding-bottom:26px}
+.g-baro{grid-area:baro;align-self:center}.g-anemo{grid-area:anemo}.g-rose{grid-area:rose}.g-therm{grid-area:therm}
+.g-rain{grid-area:rain}.g-graph{grid-area:graph;align-self:center}.g-sun{grid-area:sun}.g-trio{grid-area:trio}
+.inst{margin:0;position:relative;display:flex;flex-direction:column;align-items:center;gap:9px;min-width:0;
+  animation:mount .9s var(--e) both;animation-delay:calc(var(--i,0)*70ms + 100ms)}
+@keyframes mount{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+.dw{position:relative;width:100%;cursor:zoom-in;-webkit-tap-highlight-color:transparent}
+.dw::before{content:"";position:absolute;inset:0;border-radius:50%;transform:translate(1.2%,3.2%) scale(1.03);
+  background:radial-gradient(closest-side,rgba(8,5,3,.85) 84%,rgba(8,5,3,0) 100%)}
+.g-graph .dw::before{border-radius:10px;inset:4% 1% -2% 1%;background:rgba(8,5,3,.6);filter:blur(12px);transform:none}
+.dw svg{display:block;width:100%;height:auto;position:relative;overflow:visible}
+#i-baro .dw{cursor:pointer}
+.plate{position:relative;border:1px solid #6E5620;border-radius:3px;cursor:zoom-in;
+  padding:7px 24px 6px;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#2b2009;white-space:nowrap;
+  background:linear-gradient(180deg,#e2c87f,#B08D3C 60%,#a9873a);text-shadow:0 1px 0 rgba(255,241,196,.5);
+  box-shadow:inset 0 1px 0 rgba(255,246,208,.7),0 2px 4px rgba(0,0,0,.55);transition:filter .3s,transform .3s var(--spring)}
+.plate::before,.plate::after{content:"";position:absolute;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#f0dc9a,#6E5620 75%)}
+.plate::before{left:8px}.plate::after{right:8px}
+.plate em{font-style:italic;text-transform:none;letter-spacing:.03em;font-size:11px;color:#33270d;margin-left:.9em}
+div.plate{cursor:default}
+.inst:hover .plate,.plate:focus-visible{filter:brightness(1.12)}
+.trio{position:relative;width:100%;aspect-ratio:1}
+.trio .inst{position:absolute;animation-delay:calc(var(--i,0)*70ms + 100ms)}
+.m-tide{left:21%;top:0;width:58%}.m-sea{left:0;top:52%;width:48%}.m-vis{right:0;top:52%;width:48%}
+.g-trio .plate{margin-top:4px;font-size:9.5px;letter-spacing:.14em;padding:6px 12px}
+
+/* engraved SVG marks */
+.t{font-family:var(--serif);fill:#23312F;text-anchor:middle}
+.n{dominant-baseline:central}.tw{letter-spacing:.2em}.ti{font-style:italic}
+.sea{fill:#46605d}.red{fill:#A33B2B}
+.ln{fill:none;stroke:#23312F}
+.glare{opacity:calc(1 - var(--dim)*1.5);transform:rotate(var(--hr,0deg));pointer-events:none}
+.streak{pointer-events:none;opacity:calc(var(--rain)*.22)}
+.streak.s2{opacity:calc(var(--rain)*.7)}
+.drain{opacity:0;transition:opacity .25s}.drain.on{opacity:.9;animation:drip .32s linear infinite}
+@keyframes drip{to{stroke-dashoffset:-9}}
+.tapring{fill:none;stroke:#fff;stroke-width:2;pointer-events:none;animation:tap .6s var(--e) forwards;transform-box:fill-box;transform-origin:center}
+@keyframes tap{from{opacity:.75;transform:scale(.3)}to{opacity:0;transform:scale(2.6)}}
+.sethand{cursor:grab;touch-action:none}.sethand:active{cursor:grabbing}
+.sethand:focus{outline:none}.sethand:focus-visible .knob{stroke:var(--cream);stroke-width:3}
+
+/* signal mast */
+.mastf{cursor:help}
+.cone{transform:translateY(38px);opacity:0;transition:transform 1.6s var(--spring),opacity .5s ease}
+.storm .cone{transform:translateY(0);opacity:1}
+.conei{transform-origin:0 9px;transition:transform .9s var(--e)}
+.north .conei{transform:scaleY(-1)}
+.pennant{transform-origin:55px 10px;animation:flap var(--flap,1.2s) ease-in-out infinite alternate}
+@keyframes flap{from{transform:skewY(-9deg) scaleX(.94)}to{transform:skewY(11deg) scaleX(1.04)}}
+
+/* weather light */
+.weather{position:absolute;inset:0;pointer-events:none;z-index:15;background:#0d1516;opacity:var(--dim);overflow:hidden}
+.weather2{position:absolute;inset:0;pointer-events:none;z-index:15;opacity:var(--cl);overflow:hidden}
+.weather2::before{content:"";position:absolute;top:0;bottom:0;left:0;width:400%;
+  background:linear-gradient(90deg,rgba(9,14,15,0) 0%,rgba(9,14,15,.5) 22%,rgba(9,14,15,0) 46%,rgba(9,14,15,.42) 70%,rgba(9,14,15,0) 100%) 0 0/50% 100% repeat-x;
+  animation:clouds 34s linear infinite;will-change:transform}
+@keyframes clouds{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+.lamp{position:absolute;inset:0;pointer-events:none;z-index:16;opacity:var(--night);
+  background:radial-gradient(ellipse 70% 55% at 50% 0%,rgba(244,196,110,.2),rgba(244,196,110,0) 70%);mix-blend-mode:screen}
+
+/* time rail — sticky only within the board */
+.rail{position:sticky;bottom:0;z-index:20;margin:0 calc(clamp(12px,2.4vw,36px)*-1);
+  padding:9px clamp(12px,2.4vw,36px) calc(9px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(180deg,#6a4534,#4a2f23 30%,#33221a);
+  box-shadow:0 -1px 0 rgba(217,188,106,.35),0 -10px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,220,170,.12)}
+.railin{max-width:1290px;margin:0 auto;display:flex;align-items:center;gap:clamp(10px,1.6vw,22px)}
+.sw{display:flex;align-items:center;gap:8px;background:none;border:0;padding:6px 2px;cursor:pointer;
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#D9BC6A;white-space:nowrap}
+.sw span{transition:opacity .3s}.sw .h{opacity:.4}.sw[aria-pressed="false"] .a{opacity:.4}.sw[aria-pressed="false"] .h{opacity:1}
+.swt{position:relative;width:46px;height:22px;border-radius:11px;background:#23312F;box-shadow:inset 0 2px 4px rgba(0,0,0,.7),0 0 0 2px #B08D3C,0 0 0 3px #6E5620}
+.swt i{position:absolute;top:-3px;left:-3px;width:28px;height:28px;border-radius:50%;
+  background:radial-gradient(circle at 35% 28%,#f2e0a2,#D9BC6A 28%,#B08D3C 60%,#6E5620);box-shadow:0 3px 5px rgba(0,0,0,.6);
+  transform:translateX(24px);transition:transform .45s var(--spring)}
+.sw[aria-pressed="false"] .swt i{transform:translateX(0)}
+.track{position:relative;flex:1;height:42px;border-radius:4px;cursor:ew-resize;touch-action:none;padding:0 42px;
+  background:linear-gradient(180deg,#e2c87f,#B08D3C 45%,#a9873a);border:1px solid #6E5620;
+  box-shadow:inset 0 1px 0 rgba(255,246,208,.7),0 3px 6px rgba(0,0,0,.5);user-select:none}
+.run{position:relative;height:100%}
+.days{position:absolute;inset:0;display:flex}
+.days span{flex:1;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:#32260a;padding:5px 0 0 7px;
+  border-left:1px solid rgba(60,44,10,.7);box-shadow:inset 1px 0 0 rgba(255,241,196,.4);text-shadow:0 1px 0 rgba(255,241,196,.5);
+  background:repeating-linear-gradient(90deg,rgba(60,44,10,.5) 0 1px,transparent 1px 25%) 0 100%/100% 7px no-repeat}
+.days i{font-style:normal}.days span:last-child{border-right:1px solid rgba(60,44,10,.7)}
+.slot{position:absolute;left:-6px;right:-6px;top:21px;height:7px;border-radius:4px;background:#23312F;
+  box-shadow:inset 0 2px 3px rgba(0,0,0,.8),0 1px 0 rgba(255,241,196,.45)}
+.gale{position:absolute;top:1px;bottom:1px;background:#A33B2B;border-radius:2px;opacity:.92}
+.lev{position:absolute;top:-7px;left:0;width:84px;height:54px;margin-left:-42px;pointer-events:none;will-change:transform}
+.lev b{position:absolute;inset:0 0 auto 0;height:25px;display:flex;align-items:center;justify-content:center;border-radius:3px;
+  font-weight:400;font-size:11px;letter-spacing:.14em;color:#EDE4CF;background:linear-gradient(180deg,#2f423f,#23312F);
+  border:1px solid #111a19;box-shadow:0 0 0 2px #B08D3C,0 0 0 3px #6E5620,0 4px 8px rgba(0,0,0,.6);font-variant-numeric:tabular-nums}
+.lev u{position:absolute;left:50%;top:26px;width:14px;height:28px;margin-left:-7px;border-radius:3px 3px 7px 7px;
+  background:linear-gradient(90deg,#6E5620,#D9BC6A 35%,#f2e0a2 48%,#B08D3C 70%,#6E5620);box-shadow:0 3px 5px rgba(0,0,0,.6)}
+.lev u::after{content:"";position:absolute;left:6px;top:0;bottom:6px;width:2px;background:#23312F;opacity:.8}
+.track:focus-visible{outline:2px solid var(--cream);outline-offset:3px}
+.hint{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#c3ad7c;white-space:nowrap;opacity:.9}
+
+/* tooltip plate */
+.tip{position:fixed;left:0;top:0;z-index:80;pointer-events:none;opacity:0;transition:opacity .18s;max-width:300px;
+  padding:7px 14px 6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#2b2009;text-align:center;line-height:1.5;
+  background:linear-gradient(180deg,#eed691,#D9BC6A 30%,#B08D3C);border:1px solid #6E5620;border-radius:3px;
+  box-shadow:inset 0 1px 0 rgba(255,246,208,.8),0 6px 14px rgba(0,0,0,.6)}
+.tip.on{opacity:1}
+
+/* ── the desk and register — no nested scroll anywhere ── */
+.desk{position:relative;padding:clamp(30px,5vw,76px) clamp(12px,3vw,40px) clamp(48px,6vw,90px);
+  background:radial-gradient(ellipse at 50% 0,#2e403d,#23312F 55%,#1a2523)}
+.book{max-width:1140px;margin:0 auto;position:relative;display:grid;grid-template-columns:1.22fr 1fr;background:#EDE4CF;
+  box-shadow:0 30px 60px rgba(0,0,0,.5),0 2px 0 #c9bd9f,0 4px 0 #e3d9bf,0 6px 0 #c9bd9f,0 8px 0 #e3d9bf}
+.book::after{content:"";position:absolute;top:0;bottom:0;left:calc(1.22/2.22*100%);width:70px;margin-left:-35px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(35,49,47,0),rgba(35,49,47,.16) 46%,rgba(35,49,47,.3) 50%,rgba(35,49,47,.12) 56%,rgba(35,49,47,0))}
+.page{padding:clamp(22px,3.6vw,50px) clamp(20px,3.6vw,52px) clamp(26px,3.6vw,48px);min-width:0}
+.page h2{margin:0;font-weight:400;font-size:12px;letter-spacing:.34em;text-transform:uppercase}
+.page .sub{margin:6px 0 0;padding-bottom:14px;border-bottom:3px double #23312F;font-style:italic;font-size:13.5px;color:#46605d}
+#log{list-style:none;margin:14px 0 0 6px;padding:0 0 0 clamp(14px,2vw,26px);border-left:1px solid rgba(163,59,43,.45);
+  background:repeating-linear-gradient(180deg,transparent 0 31px,rgba(111,143,140,.38) 31px 32px)}
+#log li{font-family:var(--hand);font-style:italic;font-size:clamp(17px,1.5vw,20.5px);line-height:32px;color:#23312F;padding:0;
+  opacity:calc(1 - var(--o,0)*.085)}
+#log li.warn{color:#A33B2B}
+#log li.now{background:rgba(176,141,60,.18);box-shadow:0 0 0 6px rgba(176,141,60,.18)}
+#log li.fresh{animation:write 1.9s cubic-bezier(.4,.1,.6,.95) both}
+@keyframes write{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 -2% 0 0)}}
+.syn p{font-size:clamp(15px,1.2vw,16.5px);line-height:1.62;margin:16px 0 0;text-align:left;hyphens:auto}
+#synP::first-letter{float:left;font-size:3.3em;line-height:.82;padding:.08em .08em 0 0;color:#A33B2B}
+.syn dl{margin:20px 0 0;display:grid;grid-template-columns:auto 1fr;gap:8px 18px;border-top:1px solid #23312F;padding-top:14px}
+.syn dt{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;padding-top:4px;color:#46605d}
+.syn dd{margin:0;font-size:15.5px;line-height:1.5}
+.syn .fine{margin-top:22px;padding-top:12px;border-top:3px double #23312F;font-size:12px;line-height:1.6;font-style:italic;color:#46605d}
+.credit{text-align:center;color:#d3bd90;font-size:11px;letter-spacing:.24em;text-transform:uppercase;margin-top:32px}
+.credit b{color:#e8d296;font-weight:normal}
+
+/* ── detail view ── */
+.veil{position:fixed;inset:0;z-index:50;background:radial-gradient(ellipse at 40% 45%,rgba(35,49,47,.92),rgba(12,18,17,.97));
+  opacity:0;pointer-events:none;transition:opacity .45s}
+.veil.on{opacity:1;pointer-events:auto}
+.detail{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;gap:clamp(16px,3vw,48px);padding:24px;pointer-events:none}
+.detail.on{display:flex}
+.detail .big{width:min(52vh,520px);flex:0 0 auto;pointer-events:auto}
+.detail .big svg{width:100%;height:auto;display:block;filter:drop-shadow(0 14px 18px rgba(0,0,0,.6))}
+.card{position:relative;width:380px;max-height:calc(100vh - 40px);overflow:auto;
+  padding:22px 26px 20px;background:#EDE4CF;border-radius:2px;
+  background-image:repeating-linear-gradient(180deg,transparent 0 27px,rgba(111,143,140,.22) 27px 28px);
+  box-shadow:0 20px 50px rgba(0,0,0,.6),inset 0 0 60px rgba(176,141,60,.18);
+  opacity:0;transform:translateY(22px) rotate(.6deg);pointer-events:none;transition:opacity .4s,transform .6s var(--e)}
+.card.on{opacity:1;transform:none;pointer-events:auto;transition-delay:.18s}
+.card h2{margin:0 0 2px;font-weight:400;font-size:13px;letter-spacing:.28em;text-transform:uppercase}
+.card .mk{font-style:italic;font-size:13px;color:#46605d;margin:0 0 12px}
+.card .rd{font-family:var(--hand);font-style:italic;font-size:23px;line-height:1.25;margin:0 0 10px;color:#23312F;min-height:2.5em}
+.card svg.chart{display:block;width:100%;height:auto;margin:0 0 8px}
+.card .cap{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#46605d;margin:0 0 12px}
+.card .note{font-size:14.5px;line-height:1.55;margin:0;color:#2c3b39}
+.ink{fill:none;stroke:#5B4391;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.shut{position:fixed;z-index:62;right:16px;top:16px;width:46px;height:46px;border-radius:50%;border:1px solid #6E5620;cursor:pointer;
+  background:radial-gradient(circle at 35% 28%,#f2e0a2,#D9BC6A 28%,#B08D3C 62%,#6E5620);box-shadow:0 4px 10px rgba(0,0,0,.6);
+  opacity:0;pointer-events:none;transform:rotate(-90deg) scale(.6);transition:opacity .3s,transform .6s var(--spring)}
+.shut.on{opacity:1;pointer-events:auto;transform:none}
+.shut::before,.shut::after{content:"";position:absolute;left:12px;right:12px;top:21px;height:2px;background:#2b2009}
+.shut::before{transform:rotate(45deg)}.shut::after{transform:rotate(-45deg)}
+
+@media (min-width:1180px){h1{white-space:nowrap}}
+@media (max-width:1179px){h1 .c{display:block;font-size:.78em;margin-top:2px}h1 .d2{display:none}}
+@media (max-width:1040px){
+  .head{grid-template-columns:104px minmax(0,1fr) 104px}
+  .grid{grid-template-columns:repeat(2,1fr);grid-template-areas:"baro baro" "anemo rose" "therm rain" "graph graph" "sun trio"}
+  .hint{display:none}
+  .book{grid-template-columns:1fr}.book::after{display:none}
+  .syn{border-top:1px solid rgba(35,49,47,.35)}
+  .detail .big{width:min(42vh,420px)}
+}
+@media (max-width:640px){
+  .head{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"pl pl" "ck ms"}
+  .plaque{grid-area:pl}
+  .head .ckf{grid-area:ck;justify-self:center;width:128px}
+  .head .mastf{grid-area:ms;justify-self:center;width:128px}
+  h1{white-space:normal}h1 span{display:block}h1 .d{display:none}
+  h1 .a{font-size:25px;letter-spacing:.3em}h1 .b{font-size:12.5px;margin-top:3px}h1 .c{font-size:11px;margin-top:2px}
+  .grid{grid-template-columns:1fr;grid-template-areas:"baro" "anemo" "rose" "therm" "rain" "graph" "sun" "trio";gap:26px}
+  .plate em{display:block;margin:4px 0 0}
+  .track{padding:0 38px;height:40px}.days span{font-size:9px;padding-left:4px}.days i{display:none}
+  .lev{width:72px;margin-left:-36px}.lev b{font-size:10px;letter-spacing:.06em}
+  .sw .h{display:none}.sw{gap:6px;font-size:9px}
+  #log{min-height:0}
+  .detail{flex-direction:column;overflow:auto;padding:60px 14px 20px}
+  .detail .big{width:min(72vw,340px)}
+  .card{width:100%;max-height:none;overflow:visible}
+  .detail .big{pointer-events:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .inst,.pennant,.weather2::before,#log li.fresh,.drain.on{animation:none!important}
+  .cone,.conei,.swt i,.card,.shut{transition-duration:.01s!important}
+}
+</style>
+</head>
+<body>
+
+<svg class="defs" aria-hidden="true"><defs>
+  <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#f0dc9a"/><stop offset=".2" stop-color="#D9BC6A"/><stop offset=".5" stop-color="#B08D3C"/><stop offset=".8" stop-color="#6E5620"/><stop offset="1" stop-color="#a08036"/></linearGradient>
+  <radialGradient id="bezel" cx=".38" cy=".3" r=".78">
+    <stop offset="0" stop-color="#E6CC85"/><stop offset=".5" stop-color="#B08D3C"/><stop offset="1" stop-color="#5a4519"/></radialGradient>
+  <radialGradient id="enamel" cx=".44" cy=".38" r=".66">
+    <stop offset="0" stop-color="#f6f0df"/><stop offset=".6" stop-color="#EDE4CF"/><stop offset="1" stop-color="#d9cdae"/></radialGradient>
+  <radialGradient id="glassG" cx=".5" cy=".5" r=".5">
+    <stop offset=".72" stop-color="#23312F" stop-opacity="0"/><stop offset=".94" stop-color="#23312F" stop-opacity=".1"/><stop offset="1" stop-color="#23312F" stop-opacity=".34"/></radialGradient>
+  <linearGradient id="merc" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#23312F"/><stop offset=".45" stop-color="#8aa5a2"/><stop offset="1" stop-color="#23312F"/></linearGradient>
+  <linearGradient id="tube" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#6F8F8C" stop-opacity=".5"/><stop offset=".3" stop-color="#fff" stop-opacity=".8"/><stop offset=".6" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#6F8F8C" stop-opacity=".55"/></linearGradient>
+  <linearGradient id="water" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#4f706d"/><stop offset=".35" stop-color="#8fb0ac"/><stop offset="1" stop-color="#587a77"/></linearGradient>
+  <linearGradient id="drumG" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#1a1208" stop-opacity=".72"/><stop offset=".16" stop-color="#1a1208" stop-opacity=".2"/><stop offset=".4" stop-color="#fff" stop-opacity=".3"/><stop offset=".52" stop-color="#fff" stop-opacity="0"/><stop offset=".8" stop-color="#1a1208" stop-opacity=".22"/><stop offset="1" stop-color="#1a1208" stop-opacity=".78"/></linearGradient>
+  <linearGradient id="caseG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3a514d"/><stop offset="1" stop-color="#141d1c"/></linearGradient>
+  <radialGradient id="orb" cx=".36" cy=".3" r=".75">
+    <stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".3" stop-color="#cfe0dc" stop-opacity=".75"/><stop offset=".75" stop-color="#6F8F8C" stop-opacity=".6"/><stop offset="1" stop-color="#23312F" stop-opacity=".7"/></radialGradient>
+  <linearGradient id="redCone" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#c4543f"/><stop offset="1" stop-color="#8e2f22"/></linearGradient>
+  <pattern id="rainP" width="52" height="96" patternUnits="userSpaceOnUse" patternTransform="rotate(16)">
+    <path d="M6 4v26M31 38v34M44 8v15M18 58v30" stroke="#fff" stroke-width="1.1" opacity=".85" stroke-linecap="round"/>
+    <path d="M7.4 4v26M32.4 38v34M45.4 8v15M19.4 58v30M24 14v9M48 62v14" stroke="#23312F" stroke-width=".9" opacity=".55" stroke-linecap="round"/></pattern>
+  <filter id="wood" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.0035 0.21" numOctaves="4" seed="11"/>
+    <feColorMatrix values="0 0 0 0 .07  0 0 0 0 .035  0 0 0 0 .02  1.7 0 0 0 -.62"/></filter>
+  <clipPath id="dialClip"><circle cx="180" cy="180" r="130"/></clipPath>
+</defs></svg>
+
+<main>
+<section class="board" id="board" aria-label="Instrument board">
+  <svg class="grain" aria-hidden="true" preserveAspectRatio="none"><rect width="100%" height="100%" filter="url(#wood)"/></svg>
+  <div class="in">
+    <header class="head">
+      <figure class="inst ckf" id="i-clock" style="--i:1"><div class="dw"></div></figure>
+      <div class="plaque"><i></i><i></i><i></i><i></i>
+        <h1><span class="a">Sofia Perez-Vigo</span><span class="d">·</span><span class="b">Meteorological Station</span><span class="d d2">·</span><span class="c">Est. 2026</span></h1>
+        <p>Station 25-09 &nbsp;·&nbsp; Isla de Salvora &nbsp;·&nbsp; North Galicia</p>
+      </div>
+      <figure class="inst mastf" id="i-mast" style="--i:2" aria-label="Signal mast"><div class="dw"></div></figure>
+    </header>
+    <div class="grid" id="grid">
+      <figure class="inst g-baro" id="i-baro" style="--i:0"><div class="dw"></div><button class="plate" type="button" data-k="baro">Aneroid Barometer<em>tap the glass · turn the set-hand</em></button></figure>
+      <figure class="inst g-anemo" id="i-anemo" style="--i:2"><div class="dw"></div><button class="plate" type="button" data-k="anemometer">Anemometer</button></figure>
+      <figure class="inst g-rose" id="i-rose" style="--i:3"><div class="dw"></div><button class="plate" type="button" data-k="windrose">Wind Vane</button></figure>
+      <figure class="inst g-therm" id="i-therm" style="--i:4"><div class="dw"></div><button class="plate" type="button" data-k="thermometer">Dry &amp; Wet Bulb</button></figure>
+      <figure class="inst g-rain" id="i-rain" style="--i:5"><div class="dw"></div><button class="plate" type="button" data-k="rain">Rain Gauge</button></figure>
+      <figure class="inst g-graph" id="i-graph" style="--i:6"><div class="dw"></div><button class="plate" type="button" data-k="barograph">Barograph<em>seven-day drum</em></button></figure>
+      <figure class="inst g-sun" id="i-sun" style="--i:7"><div class="dw"></div><button class="plate" type="button" data-k="sunshine">Sunshine Recorder</button></figure>
+      <div class="g-trio" style="--i:8">
+        <div class="trio">
+          <figure class="inst mini m-tide" id="i-tide" style="--i:8" tabindex="0" role="button" aria-label="Tide dial, enlarge"><div class="dw"></div></figure>
+          <figure class="inst mini m-sea" id="i-sea" style="--i:9" tabindex="0" role="button" aria-label="Sea state dial, enlarge"><div class="dw"></div></figure>
+          <figure class="inst mini m-vis" id="i-vis" style="--i:10" tabindex="0" role="button" aria-label="Visibility dial, enlarge"><div class="dw"></div></figure>
+        </div>
+        <div class="plate">Tide · Sea · Visibility</div>
+      </div>
+    </div>
+  </div>
+  <div class="weather"></div><div class="weather2"></div><div class="lamp"></div>
+  <div class="rail"><div class="railin">
+    <button class="sw" id="sw" type="button" aria-pressed="true" aria-label="Clockwork running. Switch between hold and auto"><span class="h">Hold</span><span class="swt"><i></i></span><span class="a">Auto</span></button>
+    <div class="track" id="track" role="slider" tabindex="0" aria-label="Time lever: travel through the simulated week" aria-valuemin="0" aria-valuemax="168" aria-valuenow="0">
+      <div class="run">
+        <div class="days"><span>M<i>on</i></span><span>T<i>ue</i></span><span>W<i>ed</i></span><span>T<i>hu</i></span><span>F<i>ri</i></span><span>S<i>at</i></span><span>S<i>un</i></span></div>
+        <div class="slot"><div class="gale" id="gale"></div></div>
+        <div class="lev" id="lev"><b id="tag">MON 0000</b><u></u></div>
+      </div>
+    </div>
+    <span class="hint">Drag the lever to travel the week</span>
+  </div></div>
+</section>
+
+<section class="desk" aria-label="Register">
+  <div class="book">
+    <div class="page logp">
+      <h2>Observer's Log</h2>
+      <p class="sub">Daily register of observations, kept at the six-hourly watches</p>
+      <ol id="log" aria-live="off"></ol>
+    </div>
+    <div class="page syn">
+      <h2>General Synopsis</h2>
+      <p class="sub" id="synAt">Issued from the station</p>
+      <p id="synP"></p>
+      <dl>
+        <dt>Wind</dt><dd id="fWind"></dd>
+        <dt>Weather</dt><dd id="fWx"></dd>
+        <dt>Visibility</dt><dd id="fVis"></dd>
+        <dt>Sea</dt><dd id="fSea"></dd>
+      </dl>
+      <p class="fine">Every reading on this board is simulated: one week of imagined weather, a depression crossing on the Wednesday, run on a fast clock and wound again each Monday. Sofia Perez-Vigo and Tarrant &amp; Lyle, Leith are invented. <b>Designed by Hugo Perez-Vigo.</b></p>
+    </div>
+  </div>
+  <div class="credit">Station 25-09 · Isla de Salvora · North Galicia</div>
+</section>
+</main>
+
+<div class="tip" id="tip" role="status"></div>
+<div class="veil" id="veil"></div>
+<div class="detail" id="detail">
+  <div class="big" id="big"></div>
+  <aside class="card" id="card">
+    <h2 id="cName"></h2><p class="mk">Tarrant &amp; Lyle, Leith</p>
+    <p class="rd" id="cRead"></p>
+    <svg class="chart" id="cChart" viewBox="0 0 360 150" role="img" aria-label="Twenty-four hour trace"></svg>
+    <p class="cap" id="cCap"></p>
+    <p class="note" id="cNote"></p>
+  </aside>
+</div>
+<button class="shut" id="shut" type="button" aria-label="Return the instrument to the board"></button>
+
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg', TAU=Math.PI*2;
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(x,a=0,b=1)=>x<a?a:x>b?b:x;
+const lerp=(a,b,f)=>a+(b-a)*f;
+const mod=(n,m)=>((n%m)+m)%m;
+const rad=d=>d*Math.PI/180;
+const sst=x=>x<=0?0:x>=1?1:x*x*(3-2*x);
+const smooth=sst;
+const pad=n=>String(n).padStart(2,'0');
+const pt=(cx,cy,r,a)=>[+(cx+r*Math.sin(rad(a))).toFixed(2),+(cy-r*Math.cos(rad(a))).toFixed(2)];
+const arc=(cx,cy,r,a0,a1)=>`M${pt(cx,cy,r,a0)}A${r} ${r} 0 ${Math.abs(a1-a0)>180?1:0} ${a1>a0?1:0} ${pt(cx,cy,r,a1)}`;
+const band=(cx,cy,r0,r1,a0,a1)=>{const L=a1-a0>180?1:0;return `M${pt(cx,cy,r1,a0)}A${r1} ${r1} 0 ${L} 1 ${pt(cx,cy,r1,a1)}L${pt(cx,cy,r0,a1)}A${r0} ${r0} 0 ${L} 0 ${pt(cx,cy,r0,a0)}Z`};
+const DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const COMPASS=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+const dirWord=d=>COMPASS[Math.round(mod(d,360)/22.5)%16];
+const BFT=[0,1,3,6,10,16,21,27,33,40,47,55,63];
+const bf=k=>{let n=0;for(const x of BFT)if(k>=x)n++;return n};
+const BFWORD=['Calm','Light air','Light breeze','Gentle breeze','Moderate','Fresh breeze','Strong breeze','Near gale','Gale','Strong gale','Storm','Violent storm','Hurricane'];
+const seaWord=h=>h<1?'smooth':h<2?'slight':h<3?'moderate':h<4?'rough':h<5?'very rough':h<6?'high':h<7?'very high':'phenomenal';
+const visWord=v=>v<1?'fog':v<4?'mist':v<10?'moderate':v<14?'good':'excellent';
+const wxWord=(s,t)=>s.rainRate>1?'heavy rain':s.rainRate>.2?'rain':s.cloud>.72?'overcast':s.cloud>.45?'cloudy':'fair';
+
+/* ── the weather: one smooth simulated week ── */
+const H=168,STEP=.1,N=H/STEP;
+const DIR_KF=[[0,75],[24,50],[48,5],[72,-95],[88,-180],[104,-70],[120,-25],[144,30],[168,75]];
+function dirUnwrapped(t){for(let i=0;i<DIR_KF.length-1;i++){const[t0,v0]=DIR_KF[i],[t1,v1]=DIR_KF[i+1];if(t<=t1)return lerp(v0,v1,smooth(clamp((t-t0)/(t1-t0))));}return 75;}
+function keyPressure(t){const p=TAU*t/H;return 1004+34*Math.cos(p)-6*Math.sin(2*p)+1.3*Math.sin(TAU*t/24+.6)+.55*Math.sin(TAU*t/8+1.2)+.25*Math.sin(TAU*t/3+.3);}
+const esat=T=>6.112*Math.exp(17.67*T/(T+243.5));
+function rawState(t){
+  const storm=Math.exp(-.5*Math.pow((t-84)/24,2));
+  const gust=2.6*Math.sin(TAU*t/3.1+.3)+1.7*Math.sin(TAU*t/1.35+2.1)+1.1*Math.sin(TAU*t/.55+.7);
+  const p=keyPressure(t);
+  const wind=clamp(8+30*storm+gust*(.45+.55*storm)+1.3*Math.sin(TAU*t/24+1.8),0,64);
+  const dirU=dirUnwrapped(t),dir=mod(dirU,360);
+  const cloud=clamp(.14+.86*storm+.08*Math.sin(TAU*t/11+2),0,1);
+  const dry=15-5*storm+2.3*Math.sin(TAU*(t-9)/24);
+  const wet=dry-(.4+4.7*(1-cloud));
+  const e=esat(wet)-.00066*(1+.00115*wet)*1013*(dry-wet);
+  const rh=clamp(100*e/esat(dry),12,100);
+  const rainRate=storm>.34?(storm-.34)*11*(.72+.28*Math.sin(TAU*t/2.7+1.1)):0;
+  const sea=clamp(1+5.3*storm+.6*Math.sin(TAU*t/5+.4),0,9);
+  const vis=clamp(16-12.8*storm-2.2*clamp(rainRate/5)+1.1*Math.sin(TAU*t/9+1.6),.4,16);
+  const daylight=clamp((mod(t,24)-6)/2)*clamp((20-mod(t,24))/2);
+  const sunFactor=daylight*clamp(1-cloud*1.25);
+  const tide=Math.cos(TAU*t/12.42);
+  return {p,wind,dir,dirU,cloud,dry,wet,rh,rainRate,sea,vis,sunFactor,tide,storm};
+}
+const data=new Array(N);for(let i=0;i<N;i++)data[i]=rawState(i*STEP);
+function sample(t){const x=mod(t,H)/STEP,i=Math.floor(x),f=x-i,a=data[i],b=data[(i+1)%N],o={};for(const k in a)o[k]=lerp(a[k],b[k],f);return o;}
+const cumRain=new Float64Array(N+1),cumSun=new Float64Array(N+1);
+for(let i=0;i<N;i++){cumRain[i+1]=cumRain[i]+data[i].rainRate*STEP;cumSun[i+1]=cumSun[i]+data[i].sunFactor*STEP;}
+const cumAt=(arr,x)=>{const i=Math.floor(x);return lerp(arr[i],arr[i+1],x-i);};
+function integralMod(arr,a,b){const ia=mod(a,H)/STEP,ib=mod(b,H)/STEP;let r=cumAt(arr,ib)-cumAt(arr,ia);if(mod(b,H)<mod(a,H))r+=arr[N];return r;}
+const lastNine=t=>9+24*Math.floor((t-9)/24);
+function stateAt(t){const s=sample(t);s.rain=integralMod(cumRain,lastNine(t),t);s.sun=integralMod(cumSun,24*Math.floor(t/24),t);s.bf=bf(s.wind);s.tideAngle=mod(t/12.42*360,360);return s;}
+let galeStart=H,galeEnd=0;
+for(let i=0;i<N;i++)if(data[i].p<980){const t=i*STEP;if(t<galeStart)galeStart=t;if(t>galeEnd)galeEnd=t;}
+
+/* ── SVG helpers ── */
+let uid=0;
+function E(tag,a,p,tx){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(tx!=null)e.textContent=tx;if(p)p.appendChild(e);return e;}
+const ticks=(p,cx,cy,r0,r1,a0,a1,n,w,col)=>{let d='';for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n;d+=`M${pt(cx,cy,r0,a)}L${pt(cx,cy,r1,a)}`;}return E('path',{d,fill:'none',stroke:col||'#23312F','stroke-width':w},p);};
+const num=(p,cx,cy,r,a,tx,size,cls='')=>E('text',{x:pt(cx,cy,r,a)[0],y:pt(cx,cy,r,a)[1],transform:`rotate(${a} ${pt(cx,cy,r,a)[0]} ${pt(cx,cy,r,a)[1]})`,class:'t n '+cls,'font-size':size},p,tx);
+const txt=(p,x,y,s,size,cls='')=>E('text',{x,y,class:'t '+cls,'font-size':size},p,s);
+function arcText(p,cx,cy,r,am,s,size,cls='',flip){const id='ap'+(++uid);E('path',{id,d:flip?arc(cx,cy,r,am+89,am-89):arc(cx,cy,r,am-89,am+89),fill:'none'},p);
+  E('text',{class:'t '+cls,'font-size':size},p).appendChild(E('textPath',{href:'#'+id,startOffset:'50%'},null,s));}
+function screw(p,x,y,r,rot){E('circle',{cx:x,cy:y,r,fill:'url(#bezel)',stroke:'#6E5620','stroke-width':r*.22},p);
+  E('line',{x1:x-r*.72,y1:y,x2:x+r*.72,y2:y,stroke:'#4c3b14','stroke-width':r*.34,transform:`rotate(${rot} ${x} ${y})`},p);}
+function dial(hostId,label,vb=360){const c=vb/2,s=vb/360;
+  const svg=E('svg',{viewBox:`0 0 ${vb} ${vb}`,role:'img','aria-label':label},document.querySelector('#'+hostId+' .dw'));
+  E('circle',{cx:c,cy:c,r:147*s,fill:'url(#bezel)'},svg);
+  E('circle',{cx:c,cy:c,r:146*s,fill:'none',stroke:'#4c3b14','stroke-width':s,opacity:.8},svg);
+  E('circle',{cx:c,cy:c,r:137*s,fill:'url(#brass)'},svg);
+  E('circle',{cx:c,cy:c,r:132*s,fill:'#4c3b14'},svg);
+  E('circle',{cx:c,cy:c,r:130*s,fill:'url(#enamel)'},svg);
+  [45,135,225,315].forEach((a,i)=>{const q=pt(c,c,141.8*s,a);screw(svg,q[0],q[1],2.8*s,a*2.3+i*31);});
+  return {svg,g:E('g',{},svg),c,s,R:130*s};
+}
+function glass(d){const{svg,c,R}=d;
+  E('circle',{cx:c,cy:c,r:R,fill:'url(#glassG)','pointer-events':'none'},svg);
+  E('circle',{cx:c,cy:c,r:R,fill:'url(#rainP)',class:'streak'},svg);
+  E('circle',{cx:c,cy:c,r:R,fill:'url(#rainP)',class:'streak s2','clip-path':'url(#dialClip)'},svg);
+  const id='cp'+(++uid),cp=E('clipPath',{id},svg),gl=E('g',{class:'glare'},svg);gl.style.transformOrigin=c+'px '+c+'px';
+  for(const[r0,r1]of[[.5,.69],[.715,.905]])for(const[a0,a1]of[[-68,-45.5],[-42.5,-20]]){const p=band(c,c,R*r0,R*r1,a0,a1);E('path',{d:p},cp);E('path',{d:p,fill:'#fff',opacity:.5,'clip-path':`url(#${id})`},gl);}
+  E('path',{d:band(c,c,R*.86,R*.94,118,158),fill:'#fff',opacity:.14},gl);
+}
+function needle(p,cx,cy,shape,fill,sh=2){const a=E('path',{d:shape,fill:'#1a1208',opacity:.2},p),b=E('path',{d:shape,fill},p);
+  return ang=>{const r=`rotate(${ang.toFixed(2)})`;a.setAttribute('transform',`translate(${cx+sh} ${cy+sh*1.6}) ${r}`);b.setAttribute('transform',`translate(${cx} ${cy}) ${r}`);};}
+const hub=(p,x,y,r)=>{E('circle',{cx:x,cy:y,r,fill:'url(#brass)',stroke:'#6E5620','stroke-width':r*.14},p);E('circle',{cx:x,cy:y,r:r*.36,fill:'#4c3b14'},p);};
+class Sp{constructor(k,z,x){this.k=k;this.c=2*Math.sqrt(k)*z;this.x=x;this.v=0;}
+  step(target,dt,wrap){if(RM){this.x=target;this.v=0;return target;}for(let i=0;i<2;i++){const h=dt/2;let err=target-this.x;if(wrap)err=((err+540)%360)-180;this.v+=(this.k*err-this.c*this.v)*h;this.x+=this.v*h;}if(wrap)this.x=mod(this.x,360);return this.x;}}
+const U={}; // per-instrument update functions
+const MK='TARRANT & LYLE · LEITH';
+
+/* 1 — aneroid barometer */
+const AB=p=>-135+(p-950)*2.7;
+let setP=1009,setDrag=false,baroSvg;
+(function(){const d=dial('i-baro','Aneroid barometer'),c=d.c;baroSvg=d.svg;
+  // The scale and needle were drawn on a 600-unit canvas; bring them inside this 360 viewBox.
+  const g=E('g',{transform:'translate(180 180) scale(.5) translate(-180 -180)'},d.svg);
+  E('path',{d:band(c,c,236,249,AB(950),AB(980)),fill:'#A33B2B'},g);
+  E('path',{d:band(c,c,236,249,AB(980),AB(1050)),fill:'#6F8F8C',opacity:.2},g);
+  E('path',{d:arc(c,c,249,AB(950),AB(1050)),class:'ln','stroke-width':1.5},g);
+  ticks(g,c,c,238,249,AB(950),AB(1050),100,1);ticks(g,c,c,231,249,AB(950),AB(1050),20,1.6);ticks(g,c,c,223,249,AB(950),AB(1050),10,2.6);
+  for(let p=950;p<=1050;p+=10)num(g,c,c,201,AB(p),p,p%50?20:23);
+  for(const[w,p]of[['STORMY',958.5],['RAIN',979],['CHANGE',1000],['FAIR',1021],['VERY DRY',1041.5]])arcText(g,c,c,160,AB(p),w,16.5,'tw');
+  for(const p of[969,989.5,1010.5,1030]){const q=pt(c,c,166,AB(p));E('circle',{cx:q[0],cy:q[1],r:2.1,fill:'#A33B2B'},g);}
+  const ai=h=>AB(h*33.8639);let di='';
+  for(let h=280;h<=310;h++){const a=ai(h/10),L=h%10===0?12:h%5===0?8:4;di+=`M${pt(c,c,128,a)}L${pt(c,c,128-L,a)}`;}
+  E('path',{d:di,fill:'none',stroke:'#46605d','stroke-width':1.1},g);E('path',{d:arc(c,c,128,ai(28.1),ai(31)),fill:'none',stroke:'#46605d','stroke-width':1.1},g);
+  for(const h of[29,30,31])num(g,c,c,103,ai(h),h,12,'sea');
+  arcText(g,c,c,80,0,'INCHES OF MERCURY',8,'tw sea');
+  arcText(g,c,c,244,180,'HECTOPASCALS',10,'tw',1);
+  txt(g,c,395,'ANEROID BAROMETER',12,'tw');txt(g,c,424,'Tarrant & Lyle',20,'ti');txt(g,c,443,'LEITH',9,'tw');
+  const nd=needle(g,c,c,'M-3.4 0L-1.3 -194L-7.5 -203L0 -231L7.5 -203L1.3 -194L3.4 0L2.6 50A17 17 0 1 1 -2.6 50Z','#23312F',3);
+  E('circle',{cx:c,cy:c,r:9,fill:'#23312F'},g);glass(d);
+  const sh=E('g',{class:'sethand',tabindex:0,role:'slider','aria-label':'Brass set-hand','aria-valuemin':950,'aria-valuemax':1050},g);
+  const sg_=E('g',{},sh);
+  E('line',{x1:0,y1:0,x2:0,y2:-246,stroke:'#000','stroke-opacity':0,'stroke-width':40,'stroke-linecap':'round'},sg_);
+  E('path',{d:'M-1.6 0L-1.6 -206L-7 -216L0 -246L7 -216L1.6 -206L1.6 0Z',fill:'url(#brass)',stroke:'#6E5620','stroke-width':.7},sg_);
+  E('circle',{cx:c,cy:c,r:21,fill:'url(#brass)',stroke:'#6E5620','stroke-width':1.2,class:'knob'},sh);
+  E('circle',{cx:c,cy:c,r:17,fill:'none',stroke:'#4c3b14','stroke-width':3,'stroke-dasharray':'1.6 2.2',opacity:.7},sh);
+  E('circle',{cx:c,cy:c,r:9,fill:'url(#brass)',stroke:'#6E5620','stroke-width':.8},sh);
+  U.baro=x=>nd(AB(clamp(x,946,1054)));
+  U.setHand=()=>{sg_.setAttribute('transform',`translate(${c} ${c}) rotate(${AB(setP).toFixed(2)})`);sh.setAttribute('aria-valuenow',Math.round(setP));};U.setHand();
+  sh.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowUp'){setP=clamp(setP+1,950,1050);e.preventDefault();}if(e.key==='ArrowLeft'||e.key==='ArrowDown'){setP=clamp(setP-1,950,1050);e.preventDefault();}});
+})();
+
+/* 2 — anemometer */
+(function(){const d=dial('i-anemo','Anemometer'),{g,c}=d,A=k=>-135+k*270/70;
+  E('path',{d:band(c,c,113,119,A(34),A(70)),fill:'#A33B2B'},g);E('path',{d:arc(c,c,119,A(0),A(70)),class:'ln','stroke-width':.8},g);
+  ticks(g,c,c,113,119,A(0),A(70),70,.5);ticks(g,c,c,109,119,A(0),A(70),14,.9);ticks(g,c,c,104,119,A(0),A(70),7,1.5);
+  for(let k=0;k<=70;k+=10)num(g,c,c,93,A(k),k,12);
+  const th=[0,...BFT.slice(1),70];
+  for(let i=0;i<13;i++){E('path',{d:band(c,c,64,76,A(th[i])+.5,A(th[i+1])-.5),fill:i>=8?'#A33B2B':'#6F8F8C',opacity:i>=8?.85:(i%2?.5:.26)},g);
+    if(i>0)num(g,c,c,70,A((th[i]+th[i+1])/2),i,i<2?6:7.6,i>=8?'red':'');}
+  arcText(g,c,c,51,0,'BEAUFORT',6.5,'tw sea');txt(g,c,126,'KNOTS',8.5,'tw');arcText(g,c,c,118,180,MK,6.5,'tw',1);
+  E('circle',{cx:c,cy:216,r:27,fill:'url(#brass)'},g);E('circle',{cx:c,cy:216,r:23.5,fill:'#23312F'},g);
+  const cups=E('g',{},g);
+  for(let i=0;i<3;i++){const a=i*120,q=pt(0,0,15,a);E('line',{x1:0,y1:0,x2:q[0],y2:q[1],stroke:'#D9BC6A','stroke-width':1.6},cups);
+    E('path',{d:'M0 -5.6A5.6 5.6 0 0 1 0 5.6Z',fill:'#D9BC6A',stroke:'#f2e0a2','stroke-width':.5,transform:`translate(${q[0]} ${q[1]}) rotate(${a+90})`},cups);}
+  E('circle',{r:3,fill:'#B08D3C',stroke:'#f2e0a2','stroke-width':.6},cups);
+  const nd=needle(g,c,c,'M-1.9 0L-.7 -98L0 -111L.7 -98L1.9 0L1.5 20A6 6 0 1 1 -1.5 20Z','#23312F');hub(g,c,c,6);glass(d);
+  U.anemo=k=>nd(A(clamp(k,-1,72)));U.cups=a=>cups.setAttribute('transform',`translate(${c} 216) rotate(${a.toFixed(1)})`);U.cups(0);
+})();
+
+/* 3 — wind rose */
+(function(){const d=dial('i-rose','Wind direction rose'),{g,c}=d;
+  E('circle',{cx:c,cy:c,r:124,class:'ln','stroke-width':.8},g);E('circle',{cx:c,cy:c,r:114,class:'ln','stroke-width':.5},g);
+  ticks(g,c,c,117,124,0,360,72,.5);ticks(g,c,c,114,124,0,360,32,1.1);
+  for(let i=0;i<16;i++){const a=11.25+i*22.5;E('path',{d:`M${pt(c,c,26,a-5)}L${pt(c,c,46,a)}L${pt(c,c,26,a+5)}Z`,fill:'#6F8F8C'},g);}
+  const kite=(a,len,sh)=>{const tip=pt(c,c,len,a),l=pt(c,c,sh,a-45),r=pt(c,c,sh,a+45);
+    E('path',{d:`M${c} ${c}L${l}L${tip}Z`,fill:'#23312F'},g);E('path',{d:`M${c} ${c}L${r}L${tip}Z`,fill:'#EDE4CF',stroke:'#23312F','stroke-width':.6,'stroke-linejoin':'round'},g);};
+  for(let i=0;i<8;i++)kite(22.5+i*45,56,8);for(let i=0;i<4;i++)kite(45+i*90,72,12);for(let i=0;i<4;i++)kite(i*90,90,16);
+  ['N','E','S','W'].forEach((L,i)=>{const q=pt(c,c,102,i*90);E('text',{x:q[0],y:q[1],class:'t n '+(i?'':'red'),'font-size':i?14:16,'font-weight':i?400:700},g,L);});
+  ['NE','SE','SW','NW'].forEach((L,i)=>{const q=pt(c,c,86,45+i*90);E('text',{x:q[0],y:q[1],class:'t n tw','font-size':8.5},g,L);});
+  ['NNE','ENE','ESE','SSE','SSW','WSW','WNW','NNW'].forEach((L,i)=>{const q=pt(c,c,68,22.5+i*45);E('text',{x:q[0],y:q[1],class:'t n sea','font-size':5.6},g,L);});
+  E('circle',{cx:c,cy:c,r:25,fill:'#EDE4CF',stroke:'#23312F','stroke-width':.7},g);
+  arcText(g,c,c,39,180,MK,5.4,'tw sea',1);
+  const nd=needle(g,c,c,'M-1.4 58L-1.4 -68L-6.5 -68L0 -94L6.5 -68L1.4 -68L1.4 58L10 84L0 75L-10 84Z','#A33B2B');
+  hub(g,c,c,6.5);glass(d);U.vane=a=>nd(a);
+})();
+
+/* 4 — dry & wet bulb + humidity */
+(function(){const d=dial('i-therm','Dry and wet bulb thermometers'),{g,c}=d,Y=T=>215-(T+10)*3.75;
+  txt(g,c,42,'PSYCHROMETER',7,'tw');txt(g,93,58,'DRY',6.2,'tw');txt(g,131,58,'WET',6.2,'tw');
+  let dm='';for(let T=-10;T<=30;T++){const y=Y(T),L=T%10===0?13:T%5===0?9:5;dm+=`M85 ${y}h${-L}M139 ${y}h${L*.7}`;}
+  E('path',{d:dm,class:'ln','stroke-width':.6},g);
+  for(let T=-10;T<=30;T+=10)E('text',{x:62,y:Y(T),class:'t n','font-size':9.5},g,T);
+  txt(g,62,236,'°C',7,'ti sea');
+  const tube=x=>{E('rect',{x:x-4,y:64,width:8,height:168,rx:4,fill:'url(#tube)',stroke:'#6F8F8C','stroke-width':.7},g);
+    const m=E('rect',{x:x-1.4,y:120,width:2.8,height:110,fill:'url(#merc)'},g);
+    E('circle',{cx:x,cy:236,r:8.5,fill:'url(#merc)',stroke:'#23312F','stroke-width':.5},g);E('circle',{cx:x-2.6,cy:233,r:2.2,fill:'#fff',opacity:.55},g);return m;};
+  const m1=tube(93),m2=tube(131);
+  E('path',{d:'M123 232h16M123 236h16M124 240h14M131 244v8',stroke:'#EDE4CF','stroke-width':1.1,opacity:.85,fill:'none'},g);
+  E('path',{d:'M121 250h20v6a4 4 0 0 1 -4 4h-12a4 4 0 0 1 -4 -4z',fill:'url(#brass)',stroke:'#6E5620','stroke-width':.5},g);
+  const hc=[205,150],A=h=>-120+h*2.4;
+  E('circle',{cx:hc[0],cy:hc[1],r:53,fill:'none',stroke:'url(#brass)','stroke-width':2.2},g);E('circle',{cx:hc[0],cy:hc[1],r:51,fill:'#f4eedc',stroke:'#6E5620','stroke-width':.5},g);
+  E('path',{d:band(hc[0],hc[1],42,46,A(90),A(100)),fill:'#6F8F8C',opacity:.6},g);
+  ticks(g,hc[0],hc[1],42,46,A(0),A(100),20,.5);ticks(g,hc[0],hc[1],39,46,A(0),A(100),5,1);
+  for(let h=0;h<=100;h+=20)num(g,hc[0],hc[1],31,A(h),h,7.4);
+  txt(g,hc[0],176,'HUMIDITY',5.6,'tw');txt(g,hc[0],185,'per cent',6,'ti sea');
+  const nd=needle(g,hc[0],hc[1],'M-1.2 0L-.5 -34L0 -43L.5 -34L1.2 0L1 9L-1 9Z','#23312F',1.2);hub(g,hc[0],hc[1],3.6);
+  arcText(g,c,c,118,180,MK,6.5,'tw',1);glass(d);
+  U.therm=(a,b,h)=>{let y=Y(clamp(a,-11,31));m1.setAttribute('y',y.toFixed(2));m1.setAttribute('height',(232-y).toFixed(2));
+    y=Y(clamp(b,-11,31));m2.setAttribute('y',y.toFixed(2));m2.setAttribute('height',(232-y).toFixed(2));nd(A(clamp(h,0,100)));};
+})();
+
+/* 5 — rain gauge */
+(function(){const d=dial('i-rain','Rain gauge'),{g,c}=d,Y=m=>226-m*3.7;
+  txt(g,c,40,'RAIN',9,'tw');
+  E('path',{d:'M108 50h84l-26 22h-32z',fill:'url(#brass)',stroke:'#6E5620','stroke-width':.6},g);
+  E('ellipse',{cx:c,cy:50,rx:42,ry:4,fill:'#6E5620',stroke:'#D9BC6A','stroke-width':.8},g);
+  const cid='cp'+(++uid);E('rect',{x:127,y:72,width:46,height:156,rx:3},E('clipPath',{id:cid},g));
+  const w=E('rect',{x:127,y:226,width:46,height:4,fill:'url(#water)',opacity:.78,'clip-path':`url(#${cid})`},g);
+  const men=E('ellipse',{cx:c,cy:226,rx:23,ry:2.6,fill:'#b9d0cc',opacity:.9,'clip-path':`url(#${cid})`},g);
+  E('rect',{x:127,y:72,width:46,height:156,rx:3,fill:'url(#tube)',opacity:.55,stroke:'#46605d','stroke-width':.9},g);
+  let dm='';for(let m=0;m<=40;m++){const y=Y(m),L=m%10===0?16:m%5===0?11:6;dm+=`M125 ${y}h${-L}`;}
+  E('path',{d:dm,class:'ln','stroke-width':.6},g);
+  for(let m=0;m<=40;m+=10)E('text',{x:96,y:Y(m),class:'t n','font-size':10},g,m);
+  E('text',{x:198,y:150,class:'t n tw sea','font-size':6.4,transform:'rotate(90 198 150)'},g,'MILLIMETRES SINCE 0900');
+  E('rect',{x:144,y:228,width:12,height:5,fill:'url(#brass)'},g);E('path',{d:'M147 233h6l-1 6h-4z',fill:'url(#brass)',stroke:'#6E5620','stroke-width':.4},g);
+  E('path',{d:'M156 230h9M165 226v8',stroke:'#B08D3C','stroke-width':2,'stroke-linecap':'round',fill:'none'},g);
+  const dr=E('line',{x1:c,y1:240,x2:c,y2:259,stroke:'#6F8F8C','stroke-width':2,'stroke-dasharray':'5 4','stroke-linecap':'round',class:'drain'},g);
+  E('ellipse',{cx:c,cy:261,rx:15,ry:2.6,fill:'#6E5620',stroke:'#D9BC6A','stroke-width':.7},g);
+  arcText(g,c,c,118,180,MK,6.5,'tw',1);glass(d);
+  U.rain=(mm,on)=>{const y=Y(clamp(mm,0,41.5));w.setAttribute('y',y.toFixed(2));w.setAttribute('height',(230-y).toFixed(2));men.setAttribute('cy',y.toFixed(2));dr.classList.toggle('on',on);};
+})();
+
+/* 6 — barograph */
+const GR={cx:320,R:150};
+(function(){const svg=E('svg',{viewBox:'0 0 640 300',role:'img','aria-label':'Barograph with seven-day drum'},document.querySelector('#i-graph .dw')),{cx,R}=GR;
+  const yP=p=>222-(p-950)*1.54;GR.yP=yP;
+  E('rect',{x:26,y:14,width:588,height:242,rx:5,fill:'url(#brass)'},svg);
+  E('rect',{x:32,y:20,width:576,height:232,rx:3,fill:'#23312F'},svg);E('rect',{x:32,y:20,width:576,height:232,rx:3,fill:'url(#caseG)'},svg);
+  E('path',{d:'M10 254h620l-9 32H19z',fill:'#4a3426',stroke:'#2a1c15','stroke-width':1},svg);E('rect',{x:10,y:250,width:620,height:7,rx:2,fill:'url(#brass)'},svg);
+  E('rect',{x:238,y:264,width:164,height:15,rx:2,fill:'url(#brass)',stroke:'#6E5620','stroke-width':.6},svg);
+  txt(svg,320,274.5,'TARRANT & LYLE · LEITH',6.6,'tw');
+  E('rect',{x:cx-R,y:58,width:2*R,height:176,fill:'#f3edda'},svg);
+  const cid='cp'+(++uid);E('rect',{x:cx-R,y:58,width:2*R,height:176},E('clipPath',{id:cid},svg));
+  const pg=E('g',{'clip-path':`url(#${cid})`},svg);
+  for(let p=950;p<=1050;p+=10)E('line',{x1:cx-R,x2:cx+R,y1:yP(p),y2:yP(p),stroke:'#6F8F8C','stroke-width':p%50?.5:1.1,opacity:.75},pg);
+  GR.lines=[];for(let i=0;i<30;i++)GR.lines.push(E('line',{y1:58,y2:234,stroke:'#6F8F8C'},pg));
+  GR.labs=[];for(let i=0;i<8;i++)GR.labs.push(E('text',{class:'t tw sea','font-size':8.5},pg));
+  GR.trace=E('path',{fill:'none',stroke:'#5B4391','stroke-width':1.7,'stroke-linecap':'round','stroke-linejoin':'round'},pg);
+  E('rect',{x:cx-R,y:58,width:2*R,height:176,fill:'url(#drumG)'},svg);
+  for(const y of[58,234])E('rect',{x:cx-R-2,y:y-5,width:2*R+4,height:10,fill:'url(#brass)'},svg);
+  E('ellipse',{cx,cy:53,rx:R+2,ry:9,fill:'url(#brass)',stroke:'#6E5620','stroke-width':.8},svg);E('ellipse',{cx,cy:53,rx:R-14,ry:6.4,fill:'#8a6c26',opacity:.55},svg);
+  GR.dots=[0,1,2].map(()=>E('ellipse',{rx:5,ry:2,fill:'#4c3b14'},svg));
+  E('ellipse',{cx,cy:239,rx:R+2,ry:9,fill:'url(#brass)',stroke:'#6E5620','stroke-width':.8},svg);E('rect',{x:cx-12,y:240,width:24,height:12,fill:'url(#brass)'},svg);
+  E('rect',{x:440,y:240,width:80,height:11,rx:2,fill:'url(#brass)'},svg);
+  GR.discs=[0,1,2,3,4,5].map(()=>E('ellipse',{cx:480,rx:36,ry:6.5,fill:'url(#brass)',stroke:'#6E5620','stroke-width':.8},svg));
+  GR.rod=E('line',{x1:480,x2:480,stroke:'#D9BC6A','stroke-width':2.2},svg);
+  E('rect',{x:558,y:118,width:12,height:134,rx:2,fill:'url(#brass)'},svg);E('circle',{cx:564,cy:116,r:8,fill:'url(#brass)',stroke:'#6E5620','stroke-width':.8},svg);
+  GR.arm=E('line',{x1:564,y1:132,stroke:'#D9BC6A','stroke-width':2,'stroke-linecap':'round'},svg);
+  E('circle',{cx:564,cy:132,r:4.5,fill:'url(#brass)',stroke:'#6E5620','stroke-width':.6},svg);
+  GR.pen=E('g',{},svg);E('path',{d:'M0 0l9 -4.5v9z',fill:'#D9BC6A',stroke:'#6E5620','stroke-width':.5},GR.pen);E('circle',{r:2.1,fill:'#5B4391'},GR.pen);
+  GR.gear=E('g',{},svg);E('circle',{cx:592,cy:42,r:9,fill:'url(#brass)',stroke:'#6E5620','stroke-width':.6},GR.gear);
+  for(let i=0;i<8;i++){const a=i*45;E('line',{x1:592,y1:42,x2:592+12*Math.cos(rad(a)),y2:42+12*Math.sin(rad(a)),stroke:'#6E5620','stroke-width':2.4},GR.gear);}
+})();
+function drawBarograph(now,s){
+  const{cx,R,yP}=GR,x0=cx-R,x1=cx+R;
+  const pxph=2*R/72;
+  let d='';for(let h=72;h>=0;h-=1){const st=sample(now-h),x=x1-h*pxph;d+=(h===72?'M':'L')+x.toFixed(1)+' '+yP(st.p).toFixed(1)+' ';}
+  GR.trace.setAttribute('d',d);
+  GR.lines.forEach((ln,i)=>{const boundary=24*Math.floor(now/24)+(i-29)*24;const x=x1-(now-boundary)*pxph;
+    ln.setAttribute('x1',x.toFixed(1));ln.setAttribute('x2',x.toFixed(1));ln.setAttribute('opacity',x>=x0&&x<=x1?'.6':'0');
+    const lab=GR.labs[i];if(lab){lab.setAttribute('x',(x+4).toFixed(1));lab.setAttribute('y','72');lab.textContent=DAY[Math.floor(mod(boundary,H)/24)%7].slice(0,3).toUpperCase();lab.setAttribute('opacity',x>=x0&&x<=x1?'1':'0');}});
+  const py=yP(s.p),px=x1-2;
+  GR.arm.setAttribute('y2',py.toFixed(1));GR.arm.setAttribute('x2',(px-8).toFixed(1));
+  GR.pen.setAttribute('transform',`translate(${(px-8).toFixed(1)} ${py.toFixed(1)})`);
+  const stack=5-clamp((s.p-950)/100)*5;
+  GR.discs.forEach((el,i)=>el.setAttribute('cy',(248-i*2.2-stack*.8).toFixed(1)));
+  GR.rod.setAttribute('y1',(248-stack*4).toFixed(1));GR.rod.setAttribute('y2',py.toFixed(1));
+  if(!RM)GR.gear.setAttribute('transform',`rotate(${(now*22).toFixed(1)} 592 42)`);
+  if(RM){let all='';for(let i=0;i<=N;i+=6)all+=(i?'L':'M')+(x0+i/N*2*R).toFixed(1)+' '+yP(data[i%N].p).toFixed(1)+' ';GR.trace.setAttribute('d',all);
+    GR.lines.forEach(l=>l.setAttribute('opacity','0'));GR.labs.forEach(l=>l.setAttribute('opacity','0'));
+    GR.pen.setAttribute('transform',`translate(${(x0+now/H*2*R).toFixed(1)} ${py.toFixed(1)})`);}
+}
+
+/* 7 — sunshine recorder */
+const SUN={};
+(function(){const d=dial('i-sun','Sunshine recorder'),{g,c}=d;
+  txt(g,c,36,'SUNSHINE RECORDER',9,'tw');
+  E('path',{d:`M${c-104} 214a104 104 0 0 1 208 0z`,fill:'#e7dcc1',stroke:'#8a6a27'},g);
+  for(let h=4;h<=20;h+=4){const a=180-h/24*180;
+    E('line',{x1:c+98*Math.cos(rad(a)),y1:214-98*Math.sin(rad(a)),x2:c+88*Math.cos(rad(a)),y2:214-88*Math.sin(rad(a)),stroke:'#6F8F8C','stroke-width':1},g);
+    E('text',{x:c+82*Math.cos(rad(a)),y:214-82*Math.sin(rad(a))+3,class:'t','font-size':8},g,h);}
+  SUN.burn=E('path',{fill:'none',stroke:'#7a4a1e','stroke-width':3,'stroke-linecap':'round',opacity:.85},g);
+  E('circle',{cx:c,cy:214,r:104,fill:'url(#orb)',opacity:.55,'pointer-events':'none'},g);
+  E('circle',{cx:c,cy:214,r:104,fill:'none',stroke:'#8a6a27','stroke-width':1.5},g);
+  E('ellipse',{cx:c-34,cy:164,rx:28,ry:15,fill:'#fff',opacity:.35,transform:`rotate(-28 ${c-34} 164)`,'pointer-events':'none'},g);
+  arcText(g,c,c,118,180,MK,6.5,'tw',1);
+  txt(g,c,252,'HOURS OF SUNSHINE',8,'tw sea');SUN.label=E('text',{x:c,y:272,class:'t ti','font-size':14},g,'');
+  glass(d);
+})();
+function drawSun(s){
+  const c=180,cy=214,r=88,hours=clamp(s.sun,0,13);let d='';
+  for(let i=0;i<=36;i++){const f=i/36,a=180-(6+f*hours)/24*180,rr=r-2-3*Math.sin(f*Math.PI*3);
+    d+=(i?'L':'M')+(c+rr*Math.cos(rad(a))).toFixed(1)+' '+(cy-rr*Math.sin(rad(a))).toFixed(1)+' ';}
+  SUN.burn.setAttribute('d',d);SUN.label.textContent=s.sun.toFixed(1)+' HOURS RECORDED';
+}
+
+/* 8–10 — subsidiary dials */
+function miniDial(id,key,title,unit,max,marks,words,col='#23312F'){
+  const d=dial(id,'',360),{g,c}=d;
+  E('path',{d:band(c,c,124,128,-130,-130+260*(galeStart/H)),fill:'#A33B2B',opacity:.65},g);
+  E('path',{d:arc(c,c,126,-130,130),class:'ln','stroke-width':1.2},g);
+  for(let i=0;i<=marks;i++){const a=-130+i/marks*260,major=i%2===0;
+    E('path',{d:`M${pt(c,c,major?108:117,a)}L${pt(c,c,126,a)}`,stroke:col,'stroke-width':major?1.6:.8,fill:'none'},g);
+    if(major)E('text',{x:pt(c,c,92,a)[0],y:pt(c,c,92,a)[1],class:'t n','font-size':i===0||i===marks?9:10},g,Math.round(max*i/marks));}
+  for(const[f,w]of words){const a=-130+f*260;E('text',{x:pt(c,c,70,a)[0],y:pt(c,c,70,a)[1],class:'t n sea','font-size':8,transform:`rotate(${a} ${pt(c,c,70,a)[0]} ${pt(c,c,70,a)[1]})`},g,w);}
+  txt(g,c,120,title,9,'tw');txt(g,c,210,unit,7.5,'tw sea');txt(g,c,238,'T & L · LEITH',7,'tw sea');
+  const nd=needle(g,c,c,'M-1.6 0L-.6 -104L0 -116L.6 -104L1.6 0L1.2 18A5 5 0 1 1 -1.2 18Z',col);hub(g,c,c,6);glass(d);
+  U[key]=v=>nd(-130+clamp(v/max)*260);
+  U[key+'Raw']=nd;
+}
+miniDial('i-tide','tide','TIDE','HIGH · LOW',12,6,[[0,'HW'],[1,'LW']],'#A33B2B');
+miniDial('i-sea','sea','SEA STATE','DOUGLAS',9,9,[[0,'SMOOTH'],[.5,'ROUGH'],[1,'HIGH']],'#6F8F8C');
+miniDial('i-vis','vis','VISIBILITY','NAUTICAL MILES',16,8,[[0,'FOG'],[.28,'MIST'],[.75,'GOOD']]);
+U.tide=a=>U.tideRaw(a/360*260-130);
+
+/* ── clock & mast ── */
+(function(){const d=dial('i-clock','24-hour station clock'),{g,c}=d;
+  for(let h=0;h<24;h++){const a=h*15,major=h%6===0,r0=major?108:116,q0=pt(c,c,r0,a),q1=pt(c,c,126,a);
+    E('path',{d:`M${q0}L${q1}`,stroke:'#23312F','stroke-width':major?2:1,fill:'none'},g);
+    if(major){const q=pt(c,c,92,a);E('text',{x:q[0],y:q[1],class:'t n','font-size':13},g,h);}}
+  E('path',{d:arc(c,c,58,0,360),class:'ln',stroke:'#6F8F8C','stroke-width':1},g);
+  for(let k=0;k<7;k++){const a=k/7*360,q=pt(c,c,46,a);E('text',{x:q[0],y:q[1],class:'t n sea','font-size':9},g,DAY[k][0]);}
+  txt(g,c,150,'GMT',7,'tw sea');
+  const hour=needle(g,c,c,'M-1.9 0L-.7 -96L0 -110L.7 -96L1.9 0L1.4 18A6 6 0 1 1 -1.4 18Z','#23312F');
+  const day=needle(g,c,c,'M-1.1 0L-.5 -62L0 -72L.5 -62L1.1 0L.9 12L-.9 12Z','#A33B2B');
+  hub(g,c,c,6);glass(d);
+  U.clock=(h,dy)=>{hour(h);day(dy);};
+})();
+(function(){const svg=E('svg',{viewBox:'0 0 128 128',role:'img','aria-label':'Signal mast'},document.querySelector('#i-mast .dw'));
+  E('circle',{cx:64,cy:64,r:56,fill:'#23312F',stroke:'url(#brass)','stroke-width':4},svg);
+  E('circle',{cx:64,cy:64,r:51,fill:'none',stroke:'#6E5620','stroke-width':.8,opacity:.8},svg);
+  E('rect',{x:60,y:16,width:5,height:100,fill:'url(#brass)',stroke:'#6E5620','stroke-width':.6},svg);
+  E('path',{d:'M62 20L18 104L106 104Z',fill:'none',stroke:'#7d6b45','stroke-width':.8,opacity:.6},svg);
+  E('line',{x1:34,y1:74,x2:90,y2:74,stroke:'#7d6b45','stroke-width':1.5},svg);
+  E('circle',{cx:62.5,cy:14,r:3,fill:'url(#brass)'},svg);
+  const pen=E('g',{class:'pennant'},svg);
+  E('path',{d:'M62 30l30 7-30 7z',fill:'#D9BC6A',stroke:'#6E5620','stroke-width':.5},pen);
+  const cone=E('g',{class:'cone'},svg);
+  E('line',{x1:62,y1:24,x2:62,y2:34,stroke:'#EDE4CF','stroke-width':1},cone);
+  const ci=E('g',{class:'conei'},cone);
+  E('path',{d:'M50 34h24L62 60z',fill:'url(#redCone)',stroke:'#6e251b','stroke-width':.8},ci);
+  U.mast=storm=>{board.classList.toggle('storm',storm&&!north);board.classList.toggle('north',north);};
+})();
+const board=$('board');let north=false;
+
+/* ── springs ── */
+const SP={baro:new Sp(5.2,1.02,1005),anemo:new Sp(14,.55,8),vane:new Sp(24,.42,75),
+  therm:new Sp(3,1,15),wet:new Sp(3,1,13),hum:new Sp(7,.95,60),sea:new Sp(6,.9,2),
+  vis:new Sp(6,.9,14),tide:new Sp(8,1,0),clockH:new Sp(9,1,0),clockD:new Sp(6,1,0)};
+
+/* ── render loop ── */
+let simTime=0,auto=true,lastTs=0,cupAngle=0,lastDay=0,drainAnim=0;
+function tremble(k,s){if(RM)return 0;const t=performance.now()/1000;
+  const base={baro:.12,anemo:.55,vane:1.15,sea:.3,vis:.2}[k]||0;
+  return base*Math.sin(t*(k==='vane'?9:13)+k.length)*(.5+s.wind/45);}
+function frame(ts){
+  const dt=Math.min(.05,(ts-lastTs)/1000)||0;lastTs=ts;
+  if(auto&&!drag)simTime=mod(simTime+dt/1.8,H);
+  const s=stateAt(simTime);
+  SP.baro.step(s.p,dt);SP.anemo.step(s.wind,dt);
+  SP.vane.step(s.dir,dt);if(RM)SP.vane.x=s.dir;
+  SP.therm.step(s.dry,dt);SP.wet.step(s.wet,dt);SP.hum.step(s.rh,dt);
+  SP.sea.step(s.sea,dt);SP.vis.step(s.vis,dt);
+  SP.tide.step(s.tideAngle,dt,true);
+  SP.clockH.step(mod(simTime/24*360,360),dt,true);SP.clockD.step(mod(simTime/H*360,360),dt,true);
+  if(RM&&!setDrag)setP=s.p;
+  if(!setDrag&&!RM)setP+=(s.p-setP)*Math.min(1,dt*.55);
+  U.setHand();
+  U.baro(SP.baro.x+tremble('baro',s));
+  U.anemo(SP.anemo.x+tremble('anemo',s));
+  U.vane(SP.vane.x+tremble('vane',s));
+  U.therm(SP.therm.x,SP.wet.x,SP.hum.x);
+  U.rain(s.rain,drainAnim>0);
+  U.sea(SP.sea.x+tremble('sea',s));U.vis(SP.vis.x+tremble('vis',s));
+  U.tide(SP.tide.x);U.clock(SP.clockH.x,SP.clockD.x);
+  if(!RM)cupAngle=mod(cupAngle+s.wind*3*dt,360);U.cups(cupAngle);
+  drawBarograph(simTime,s);drawSun(s);
+  const dayStart=24*Math.floor(simTime/24);
+  if(dayStart!==lastDay&&auto){drainAnim=1.1;lastDay=dayStart;}
+  if(drainAnim>0)drainAnim-=dt;
+  const storm=s.p<980;
+  north=mod(s.dir,360)>=225&&mod(s.dir,360)<315;
+  board.style.setProperty('--dim',storm?clamp((980-s.p)/45,.2,.72):0);
+  board.style.setProperty('--cl',storm?.55:0);
+  board.style.setProperty('--rain',storm?1:0);
+  board.style.setProperty('--night',storm?.9:0);
+  board.style.setProperty('--hr',(s.wind*.4).toFixed(1)+'deg');
+  U.mast(storm);
+  lev.style.left=(simTime/H*100).toFixed(3)+'%';
+  tag.textContent=(DAY[Math.floor(simTime/24)%7].slice(0,3)+' '+pad(Math.floor(simTime%24))+pad(Math.floor((simTime%1)*60))).toUpperCase();
+  track.setAttribute('aria-valuenow',simTime.toFixed(1));
+  $('synAt').textContent='Issued '+DAY[Math.floor(simTime/24)%7]+' '+pad(Math.floor(simTime%24))+'00 · 12-hour outlook';
+  const idx=Math.floor(simTime/6);
+  if(idx!==lastLog){lastLog=idx;LOG.forEach((li,i)=>li.classList.toggle('now',i===idx));}
+  if(detailK)refreshDetail(s);
+  requestAnimationFrame(frame);
+}
+
+/* ── log & synopsis ── */
+const FL={storm:['Shutters barred on the weather side.','Lamp lit early. Spray over the screen; lens wiped twice.','Boat hauled above the noust.'],
+  rain:['Gutters singing.','Peat stack sheeted.','Hens will not come out.'],
+  night:['Stars sharp. Outer Baa light seen.','Aurora, a faint arc to the north.','Quiet. Clock wound.'],
+  fair:['Fulmars back on the stack.','Supply boat sighted to the east.','Washing out.'],
+  dull:['Swell heard in the geo.','Sheep moved to the lee.','Nothing further.']};
+function trend(t){const d=keyPressure(t)-keyPressure(t-3),a=Math.abs(d);
+  if(a<.2)return 'steady';const w=a<=1.5?' slowly':a<=3.5?'':a<=6?' quickly':' very rapidly';return(d<0?'falling':'rising')+w;}
+function stamp(t){return DAY[Math.floor(mod(t,H)/24)%7]+' '+pad(Math.floor(t%24))+'00';}
+function wx(s){return s.rainRate>1?'heavy rain':s.rainRate>.2?'rain':s.cloud>.72?'overcast':s.cloud>.45?'cloudy':'fair';}
+function entry(t,k){const s=stateAt(t),day=mod(t,24)>6&&mod(t,24)<20;
+  const warn=s.p<980;
+  const f=warn?FL.storm:s.rainRate>.5?FL.rain:!day&&s.cloud<.5?FL.night:day&&s.cloud<.5?FL.fair:FL.dull;
+  return `${stamp(t)}. ${Math.round(s.p)} ${trend(t)}. ${dirWord(s.dir)} ${s.bf}, ${wx(s)}, sea ${seaWord(s.sea)}. ${f[k%f.length]}`;}
+let LOG=[],lastLog=-1;
+(function(){const ol=$('log');let html='';
+  for(let k=0;k<28;k++){const t=k*6,s=stateAt(t),warn=s.p<980;
+    html+=`<li class="${warn?'warn':''}" style="--o:${(k%7)/12}">${entry(t,k)}</li>`;}
+  ol.innerHTML=html;LOG=[...ol.children];})();
+let lastSyn=-1;
+function synopsis(){
+  const h=Math.floor(simTime);if(h===lastSyn)return;lastSyn=h;
+  const a=stateAt(simTime),b=stateAt(mod(simTime+12,H));
+  const fall=b.p<a.p;
+  $('synP').textContent=`A ${a.p<985?'deep':'moderate'} depression lies to the west and will track eastwards during the next twelve hours. Pressure is ${fall?'falling':'rising'} by about ${Math.abs(b.p-a.p).toFixed(0)} hectopascals. ${dirWord(a.dir)} winds at ${a.wind.toFixed(0)} knots will ${b.dirU>a.dirU?'veer':'back'} ${dirWord(b.dir)} as the front clears. ${wx(b)} with visibility ${visWord(b.vis)}. Sea ${seaWord(b.sea)}; temperature near ${b.dry.toFixed(0)} degrees.`;
+  $('fWind').textContent=`${dirWord(a.dir)} ${a.wind.toFixed(0)} knots, force ${a.bf} (${BFWORD[a.bf]})`;
+  $('fWx').textContent=wx(a).replace(/^./,c=>c.toUpperCase())+'.';
+  $('fVis').textContent=`${a.vis.toFixed(1)} nautical miles — ${visWord(a.vis)}`;
+  $('fSea').textContent=`${seaWord(a.sea)} (${a.sea.toFixed(1)} on the Douglas scale)`;
+}
+
+/* ── time lever ── */
+const track=$('track'),lev=$('lev'),tag=$('tag'),sw=$('sw');
+let drag=false;
+function frac(clientX){const r=track.getBoundingClientRect(),p=parseFloat(getComputedStyle(track).paddingLeft);return clamp((clientX-r.left-p)/(r.width-p*2));}
+function galeBand(){const g=$('gale');const r=track.querySelector('.run').getBoundingClientRect();
+  g.style.left=(galeStart/H*100)+'%';g.style.width=((galeEnd-galeStart)/H*100)+'%';}
+track.addEventListener('pointerdown',e=>{drag=true;track.setPointerCapture(e.pointerId);track.focus();simTime=frac(e.clientX)*H;});
+track.addEventListener('pointermove',e=>{if(drag)simTime=frac(e.clientX)*H;});
+track.addEventListener('pointerup',()=>drag=false);
+track.addEventListener('pointercancel',()=>drag=false);
+track.addEventListener('keydown',e=>{let d=0;
+  if(e.key==='ArrowRight'||e.key==='ArrowUp')d=1;
+  if(e.key==='ArrowLeft'||e.key==='ArrowDown')d=-1;
+  if(e.key==='PageUp')d=6;if(e.key==='PageDown')d=-6;
+  if(e.key==='Home'){simTime=0;e.preventDefault();return;}
+  if(e.key==='End'){simTime=H-.01;e.preventDefault();return;}
+  if(d){simTime=mod(simTime+d,H);e.preventDefault();}});
+function toggleAuto(){auto=!auto;sw.setAttribute('aria-pressed',String(auto));}
+sw.addEventListener('click',toggleAuto);
+
+/* ── barometer glass tap & set-hand drag ── */
+$('i-baro').querySelector('.dw').addEventListener('click',e=>{
+  if(setDrag)return;
+  const ring=E('circle',{cx:e.offsetX||180,cy:e.offsetY||180,r:10,class:'tapring'},baroSvg);
+  setTimeout(()=>ring.remove(),620);
+  U.baro(SP.baro.x);SP.baro.v+=(Math.random()>.5?1:-1)*7;
+});
+const sh=$('i-baro').querySelector('.sethand');
+sh.addEventListener('pointerdown',e=>{setDrag=true;sh.setPointerCapture(e.pointerId);e.stopPropagation();e.preventDefault();});
+sh.addEventListener('pointermove',e=>{if(!setDrag)return;
+  const svg=baroSvg,p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;
+  const l=p.matrixTransform(svg.getScreenCTM().inverse()),a=clamp(Math.atan2(l.x-180,180-l.y)*180/Math.PI,-135,135);
+  setP=clamp(950+(a+135)/270*100,950,1050);});
+window.addEventListener('pointerup',()=>setDrag=false);
+
+/* ── tooltip ── */
+const tip=$('tip');
+const ALL_ID_KEY={'i-baro':'barometer','i-anemo':'anemometer','i-rose':'windrose','i-therm':'thermometer',
+  'i-rain':'rain','i-graph':'barograph','i-sun':'sunshine','i-tide':'tide','i-sea':'sea','i-vis':'vis',
+  'i-clock':'clock','i-mast':'mast'};
+document.addEventListener('pointermove',e=>{
+  const fig=e.target.closest('.inst');
+  const key=fig?ALL_ID_KEY[fig.id]:null;
+  if(!key||!META[key]){tip.classList.remove('on');return;}
+  tip.textContent=META[key].read(stateAt(simTime));tip.style.left=e.clientX+'px';tip.style.top=e.clientY+'px';tip.classList.add('on');
+});
+document.addEventListener('pointerleave',()=>tip.classList.remove('on'));
+
+/* ── detail ── */
+const META={
+  barometer:{name:'Aneroid Barometer',read:s=>s.p.toFixed(1)+' hPa',cap:'Hectopascals · inches of mercury',
+    note:s=>`The black needle reads the glass; the brass set-hand marks where it stood. ${s.p<980?'Pressure is below 980 — the storm cone is hoisted.':'The glass stands steady.'}`,v:s=>s.p},
+  anemometer:{name:'Anemometer',read:s=>s.wind.toFixed(0)+' kn · F'+s.bf,cap:'Knots · Beaufort scale',
+    note:s=>`${BFWORD[s.bf]}. The cups answer every gust; expect ${(s.wind*1.15).toFixed(0)} knots in the squalls.`,v:s=>s.wind},
+  windrose:{name:'Wind Direction Rose',read:s=>dirWord(s.dir)+' · '+Math.round(s.dir)+'°',cap:'Compass bearing · 32 points',
+    note:s=>`Wind ${s.dirU<0?'backing':'veering'} from ${dirWord(s.dir)}. The red vane hunts and gusts with the air.`,v:s=>s.dir},
+  thermometer:{name:'Dry & Wet Bulb',read:s=>s.dry.toFixed(1)+'° / '+s.wet.toFixed(1)+'°C',cap:s=>'Dry bulb / wet bulb · humidity '+s.rh.toFixed(0)+'%',
+    note:s=>`Wet-bulb depression ${(s.dry-s.wet).toFixed(1)}°C. ${s.rh>90?'The air is nearly saturated.':'The air is comparatively dry.'}`,v:s=>s.dry},
+  rain:{name:'Rain Gauge',read:s=>s.rain.toFixed(1)+' mm',cap:'Millimetres since 09:00',
+    note:s=>`${s.rainRate>.2?'Falling now at '+s.rainRate.toFixed(1)+' mm per hour.':'No rain falling at present.'} The cylinder empties each morning at nine.`,v:s=>s.rain},
+  barograph:{name:'Barograph',read:s=>s.p.toFixed(1)+' hPa',cap:'Continuous pressure · seven-day chart',
+    note:s=>`The aneroid stack lifts the pen in violet ink. ${s.p<980?'The trace dives into the storm band.':'The trace rides high across the drum.'}`,v:s=>s.p},
+  sunshine:{name:'Sunshine Recorder',read:s=>s.sun.toFixed(1)+' hours',cap:'Burn on the card · today',
+    note:s=>`A glass sphere burns the sun's path onto the card. ${s.sun<2?'Little burn — cloud has obscured the disc.':'A clear arc of sunshine recorded.'}`,v:s=>s.sun},
+  tide:{name:'Tide Dial',read:s=>(s.tide>0?'High':'Low')+' water',cap:'Semi-diurnal tide',note:s=>`The hand revolves once in twelve hours and twenty-five minutes.`,v:s=>s.tide},
+  sea:{name:'Sea State',read:s=>seaWord(s.sea),cap:s=>'Douglas scale · '+s.sea.toFixed(1),note:s=>`${seaWord(s.sea)} seas on the Douglas scale.`,v:s=>s.sea},
+  vis:{name:'Visibility',read:s=>visWord(s.vis),cap:s=>s.vis.toFixed(1)+' nautical miles',note:s=>`Horizontal visibility ${visWord(s.vis)}.`,v:s=>s.vis},
+  clock:{name:'Station Clock',read:()=>pad(Math.floor(simTime%24))+':'+pad(Math.floor((simTime%1)*60))+' GMT',
+    cap:()=>DAY[Math.floor(simTime/24)%7]+' · Greenwich Mean Time',
+    note:()=>`A twenty-four hour register with a separate day-of-week hand. One simulated hour passes in 1.8 seconds.`,
+    noChart:true,v:()=>simTime},
+  mast:{name:'Signal Mast',read:s=>s.p<980?(north?'NW gale · cone up':'S gale · cone down'):'No signal hoisted',
+    cap:'Gale cones · baize-lined porthole',
+    note:s=>s.p<980?`Glass below 980: the red cone is hoisted ${north?'point up for the veering north-west wind':'point down for the southerly gale'}.`:`Glass above 980: the cone is struck and the mast carries only the pennant.`,
+    noChart:true,v:s=>s.p}
+};
+const DETAIL_FIG={barometer:'i-baro',anemometer:'i-anemo',windrose:'i-rose',thermometer:'i-therm',rain:'i-rain',
+  barograph:'i-graph',sunshine:'i-sun',clock:'i-clock',mast:'i-mast',tide:'i-tide',sea:'i-sea',vis:'i-vis'};
+let detailK=null;
+function history(k,s){const vals=[];for(let i=0;i<=48;i++)vals.push(META[k].v(stateAt(mod(simTime-24+i*.5,H))));
+  let mn=Math.min(...vals),mx=Math.max(...vals);if(mx-mn<1e-6)mx=mn+1;
+  const X=i=>6+i/48*348,Y=v=>144-6-(v-mn)/(mx-mn)*132;
+  let d='';vals.forEach((v,i)=>d+=(i?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)+' ');
+  return `<path d="${d}" class="ink"/><circle cx="${X(48).toFixed(1)}" cy="${Y(vals[48]).toFixed(1)}" r="3" fill="#A33B2B"/><text x="354" y="146" class="t n sea" font-size="7" text-anchor="end">NOW</text><text x="6" y="146" class="t n sea" font-size="7">-24 H</text>`;}
+function refreshDetail(s){
+  const m=META[detailK];$('cRead').textContent=m.read(s);$('cNote').textContent=m.note(s);
+  $('cCap').textContent=typeof m.cap==='function'?m.cap(s):m.cap;
+  $('cChart').style.display=m.noChart?'none':'block';
+  if(!m.noChart)$('cChart').innerHTML=history(detailK,s);
+  if(detailK==='barograph'){const svg=$('big').querySelector('svg');if(svg&&GR.trace){const tr=svg.querySelector('path[stroke="#5B4391"]');if(tr)tr.setAttribute('d',GR.trace.getAttribute('d'));}}
+}
+function openDetail(k){
+  detailK=k;$('cName').textContent=META[k].name;
+  const src=document.querySelector('#'+DETAIL_FIG[k]+' svg');
+  $('big').innerHTML=src?`<svg viewBox="${src.getAttribute('viewBox')}" xmlns="http://www.w3.org/2000/svg">${src.innerHTML}</svg>`:'';
+  $('veil').classList.add('on');$('detail').classList.add('on');$('card').classList.add('on');$('shut').classList.add('on');
+  refreshDetail(stateAt(simTime));
+}
+function closeDetail(){$('detail').classList.remove('on');$('card').classList.remove('on');$('veil').classList.remove('on');$('shut').classList.remove('on');detailK=null;}
+$('shut').addEventListener('click',closeDetail);
+$('veil').addEventListener('click',closeDetail);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
+/* Every instrument — dial, case, plate, clock and mast — opens its detail view.
+   The barometer's glass is the exception: it is tapped, so only its plate enlarges. */
+const FIG_KEY={'i-anemo':'anemometer','i-rose':'windrose','i-therm':'thermometer','i-rain':'rain',
+  'i-graph':'barograph','i-sun':'sunshine','i-tide':'tide','i-sea':'sea','i-vis':'vis',
+  'i-clock':'clock','i-mast':'mast'};
+Object.entries(FIG_KEY).forEach(([id,k])=>{
+  const fig=$(id);
+  fig.tabIndex=0;fig.setAttribute('role','button');fig.setAttribute('aria-label',META[k].name+', enlarge');
+  fig.addEventListener('click',()=>openDetail(k));
+  fig.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(k);}});
+});
+document.querySelector('#i-baro .plate').addEventListener('click',()=>openDetail('barometer'));
+const baroDW=$('i-baro').querySelector('.dw');
+baroDW.title='Tap the glass to test the needle · use the plate below to enlarge';
+
+/* ── start ── */
+galeBand();window.addEventListener('resize',galeBand);
+synopsis();requestAnimationFrame(frame);setInterval(synopsis,400);
+})();
+</script>
+</body>
+</html>
